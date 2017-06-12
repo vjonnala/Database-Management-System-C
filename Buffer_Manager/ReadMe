@@ -1,0 +1,174 @@
+**Assignment 2: Buffer Manager**
+****************************************************
+
+					**Team:vjonnala,rmuniraj,sallu1,skalava2**
+					****************************************
+
+CONTENTS
+*********
+1)Instructions to run the code
+2)Description of functions used
+3)Additional Test Cases and Additional error checks
+
+*****************************************************************
+
+1)Instructions to run the code
+*******************************
+
+For executing mandatory and additional test cases:
+
+1) In the terminal,navigate to the assignment directory.
+
+2) Type: 
+	make -f makefile
+
+****For mandatory test cases ***
+3) ./test_assign1
+
+****For additional test cases ***
+4) ./test_assign2
+
+
+*****************************************************************
+
+2)Additional functionalities
+**************************
+1)We have implemented Clock and LFU Page Replacement Strategy which is included in test_assign2_2.c
+
+2)We have included additional test cases and additional error checks.
+
+*****************************************************************
+
+3)Description of functions used
+********************************
+
+	Function :initBufferPool
+	-------------------------
+
+1)Initialize all the Buffer Pool contents witht the arguments in the function in initBufferPool.
+2)Initialize the linked list frames with page number -1 and all the remaining bits to NULL.
+3)Call the intialize_linked_list() method to it.
+4)Separate BM_statistics are created to initialise all the Buffer Pool contents with their statistics.
+5)Number of pages for LFU are hard-coded to 20, because this involves the change of test case format and Create a temporary array with NULL values.
+
+
+	Function :shutdownBufferPool
+	----------------------------
+	
+1)If the fix count of a page is not equal to zero,return an appropriate error code.
+2)Check if pages are dirty.If true,write the pages back to the disc by calling forceFlushPool function.
+3)Free the memory that has been allocated to the buffer pool if the dirty bit is false.
+
+	
+	Function : forceFlushPool
+	-------------------------
+
+1)Traverse till the end of the buffer pool and check if dirty bit is set and fix count is zero.
+2)In that case , call the  writeBlock function to write the contents to the disk.
+3)On success,return RC_OK to the calling function. 
+
+
+	Function : markDirty
+	---------------------
+1)Traverse the contents of the page frame from the 1st node till last and if the pagenumber requested is found,set dirty bit to true
+2)On success,return RC_OK to the calling function.
+
+
+	Function : unpinPage
+	---------------------
+	
+1)Check if the buffer pool has been initialized.If not,throw an appropriate error code.	
+2)Traverse the contents of the page frame from the 1st node till last and set the fix count to zero for the apprpriate page number.
+3)If the dirty flag is set and fixed count is zero ,write the page to disk.
+4)If the fix count of the frame array is less than zero ,return an appropriate error code.
+
+
+	Function : forcePage
+	--------------------
+1)Check if the buffer pool has been initialized.If not,throw an appropriate error code.	
+2)Write the current content of the page back to the page file on disk .
+3)Increase the count of pages_wrote.
+4)On success,return RC_OK to the calling function.
+
+
+	Function : pinPage 
+	------------------
+This involves two cases:-
+1)Check if the page is already present in the buffer pool.If yes,	
+	
+	a)Traverse the contents of the page frame from the 1st node till last and increase the fix count of the page
+	c)Check if the replacement strategy is either FIFO / LRU / CLOCK / LFU .If not,throw an appropriate error code.
+
+2)If the page is not present in the buffer pool,
+	
+	a)Check for minimum possible frame and get the page from file using required Page Replacement Strategy .
+	b)Assign the values of the page frame. 
+
+3)On success,return RC_OK to the calling function.
+
+
+**Statistics Functions**
+-------------------------
+
+	Function : getFrameContents
+	----------------------------
+	
+1)Check if the buffer pool is null.If not,throw an appropriate error code.
+2)Traverse till the end of page frame and read the page numbers to the array.
+3)Return the array pointer of Frame Contents.
+ 
+	Function : getDirtyFlags
+	------------------------
+	
+	
+1)Check if the buffer pool is null.If not,throw an appropriate error code.
+2)Traverse till the end of page frame and check if the page is dirty and set if TRUE.
+3)Read the values to the array and return the dirty flags.
+
+	Function : getFixCounts
+	------------------------
+	
+1)Check if the buffer pool is null.If not,throw an appropriate error code.
+2)Traverse till the end of page frame and check the fix count of the pages in the page frame.
+3)Read the values to the array and return the fix counts.
+
+
+	Function : getNumReadIO
+	------------------------
+
+1)Refer to the pool manager structure,which contains the information of the pages read.
+2)Return the pages read. 
+
+
+	Function: getNumWriteIO
+	-----------------------
+	
+1)Refer to the pool manager structure,which contains the information of the pages wrote.
+2) Return the pages written. 
+
+****************************************************************
+
+4) Additional Test Cases and Additional Error Checks
+----------------------------------------------------
+
+	Test cases
+	-----------------
+test_assign2_1.c = Given Test Case = Implements LRU,FIFO.
+test_assign2_2.c = Additional Test Case = Implements LFU,CLOCK.
+
+	Error Checks
+	-----------------
+	
+We have included the following additional error checks
+
+
+1) RC_BM_POOL_INIT_ERROR 100;			// Pool initialization error
+2) RC_BM_CANNOT_UNPIN_A_PAGE 101;		// Un-Pinned Failed
+3) RC_BM_CANNOT_WRITE_A_UNPIN_PAGE 102;		//failed to write an unpin page
+4) RC_BM_INVALID_STRATEGY 103;			//Strategy passed is invalid ** Valid are RS_FIFO , RS_LRU , RS_LFU , RS_CLOCK
+5) RC_REQUESTED_PAGE_NOT_FOUND 104;		//Page requsted wasnt found in the pool
+6) RC_BM_NODE_CREATION_FAILED 105;		//Node creation failed.
+
+*****************************************************************
+
+

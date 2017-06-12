@@ -1,0 +1,213 @@
+**Assignment 3: Record Manager**
+****************************************************
+
+					**Team:vjonnala,rmuniraj,sallu1,skorvar**
+					**************************************
+
+CONTENTS
+*********
+1)Instructions to run the code
+2)Optional Extensions
+3)Description of functions used
+4)Additional Test Cases with explanation and Additional error checks
+
+*****************************************************************
+
+1)Instructions to run the code
+*******************************
+
+For executing mandatory and additional test cases:
+
+1) In the terminal,navigate to the assignment directory.
+
+2) Type: 
+	make -f makefile2
+	make -f makefile3
+	make -f makefile_exp
+
+**** For multiple scans of test cases and tombstone check ***
+3) ./test_assign3_1
+
+**** For Primary Key Violation Check ***
+4) ./test_assign3_3
+
+**** For testing test expression ***
+5) ./test_expr
+
+
+*****************************************************************
+
+2)Optional Extensions :-
+************************
+1)TOMBSTOMES:-We have implemented TOMBSTONE,which is used for marking the address of the deleted record.
+  TombStone reserves the memory for the record when it gets deleted.
+
+2)PRIMARY KEY VIOLATION:- For the given primary key on first attribute in test case, we have implemented a violation check on the 
+  primary key column.When a record with the same key is inserted, primary key violation is checked and that record is not inserted.
+
+
+*****************************************************************
+
+3)Description of functions used
+********************************
+
+The table manager structure pointer is stored to Mgmtdata of the structure provided and use it as we did in Storage_mgr.c and Buffer_mgr.c 
+
+	Function :initRecordManager
+	-------------------------
+This function is used to Initialize the record manager.All the temporary attributes are intialized to zero.
+
+
+	Function :shutdownRecordManager
+	----------------------------
+	
+This function is used to shutdown the record manager. 
+
+	
+	Function : createTable
+	-------------------------
+
+1)Create the page file and open the buffer pool manager,bm.
+2)Pin the pages with the Buffer Manager and Page Handler.
+3)Assign the table manager attributes and the attributes to the relation.
+4)After storing,copy the build to page and write it back to disk marking it as dirty.
+
+ 
+	Function : openTable
+	---------------------
+
+1)Open the buffer pool Manager BM and assign the page and bm handlers.
+3)Deserialize data and unpin the page.
+The bm is assigned to mgmtdata.
+
+
+	Function : closeTable
+	---------------------
+	
+1)Shut down the buffer pool.
+2)Free the allocated table and pool pointers.
+
+
+	Function : deleteTable
+	--------------------
+This function destroys the relative page file and returns the return code.
+
+
+	Function : insertRecord
+	----------------------------
+
+1)Pin the page and get the existing data in the page.
+2)Append the data that needs to be inserted in the page.
+3)Unpin the page with the appended data and write back to the page.
+4)Assign slot and page number in Record ID structure when the data gets inserted.
+5)If the page is full , call the ensure capacity method to add a page.
+
+	Function : deleteRecord - TOMBSTONES
+	------------------------------------
+1)Pin the page and get the existing data in the page.
+2)Search the data for the record to be deleted and insert the TOMBSTONES in its place.
+3)Unpin the page with the data along with the tombstones and write back to the page.
+
+	Function : updateRecord
+	------------------------
+
+1)Pin the page and get the existing data in the page.
+2)Based on the page number and slot number get the record which needs to be updated.
+3)Replace the slot with the record to be updated.
+4)Unpin the page with the new modified data.
+
+	Function: getRecord
+	-----------------------
+1)This method gets the data from page and set into Record structure.
+2)Pin the page to get the required record.
+3)Copy the record to the Record Data Structure and send back
+4)This is used for the validations in the test case.
+
+**Functions pertaining to Scanning **
+	
+	Function : startScan
+	------------------------
+1)To implement this fucntion, we have created a new Data Strcuture (Multiple_Scan_Handler).
+2)This set the attributes to scan the records i.e.,page numebr and slot number and the condition for SCAN.
+
+	Function : next
+	---------------
+1)This mehthod moves on to the next record in the page based on the slot number.
+2)The slot number is stored in the temporary data structure Multiple_Scan_Handler.
+3)Call the evalExpr() to check if the record matches with the respective position.
+
+
+**Functions pertaining to schemas**
+
+	Function : getRecordSize
+	----------------------
+1)This function is used to get the size of a record in a given schema.
+2)Based on no of attributes,calculate the size of record.
+3)Return the size of record. 
+
+
+	Function : createSchema
+	--------------------
+
+1)Allocate a new schema.
+2)Assign all attributes of the schema passed to createSchema function.
+3)Return the reference to schema.
+
+	Function : freeSchema
+	--------------------
+1)This function is used to free the space occupied by each schema.
+2)Free all the schema parameters that were built in createSchema (Attributes,Keys etc.,).
+
+	Function : createRecord
+	--------------------
+
+1)This function is used to create a record.
+2)Allocate memory to the record based on record size.
+3)Allocate memory to the record data based on schema size.
+
+
+	Function : freeRecord 
+	--------------------
+1)This function is used to free the memory that had been allocated to a record.
+2)Free the record data.
+
+
+	Function : getAttr 
+	------------------
+1)Gets the record from the test case.
+2)Modifies the record based on the Schema and sets the record to the Value.
+
+	Function : setAttr
+	------------------
+1)Gets the record from the test case sets the attribute.
+2)This record also appends the required field delimiter and tuple delimiter.
+
+
+4) Additional Test Cases and Additional Error Checks
+----------------------------------------------------
+
+	Test cases
+	-----------------
+i)  test_assign3_1.c
+	This test case implements the actual test case.
+ii) test_assign3_3.c
+	This test case implements a check for Primary Key Violation.
+
+	Error Checks
+	-----------------
+	
+We have included the following additional error checks
+
+  RC_RM_GET_FAILED 206
+  RC_RM_SCAN_FAILED 207
+
+NOTE:-
+-----
+OUR CODE WORKS FINE IN OUR LAPTOP.
+BUT WHILE IN FOURIER SERVER , IT THROWS AN EXCEPTION NEAR free(record) IN ALL THE METHODS IN TEST CASE.
+WE ARE ATTACHING YOU THE SCREENSHOTS.
+
+*****************************************************************
+
+ 
+
